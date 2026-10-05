@@ -10,8 +10,5 @@ documents/
 "@ | Out-File -Encoding utf8 .gitignoretests/extracted_images/
 Document_Tracker.xlsx
 Factory_Knowledge_Assistant*.docx
-Results/all_captions.json
-Results/captions_7pdf.json
-Results/output.txt
 Results/test4_page18_highres.png
 tests/extracted_images/
