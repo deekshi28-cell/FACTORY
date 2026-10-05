@@ -1,0 +1,17 @@
+@"
+venv/
+__pycache__/
+*.pyc
+chroma_db/
+Results/chroma_db/
+Results/extracted_images/
+documents/
+*.log
+"@ | Out-File -Encoding utf8 .gitignoretests/extracted_images/
+Document_Tracker.xlsx
+Factory_Knowledge_Assistant*.docx
+Results/all_captions.json
+Results/captions_7pdf.json
+Results/output.txt
+Results/test4_page18_highres.png
+tests/extracted_images/
