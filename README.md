@@ -1,6 +1,6 @@
 # Factory Knowledge Assistant (FactoryKA)
 
-A fully local, offline RAG (retrieval-augmented generation) assistant for Nichi-In equipment manuals and factory documentation. It answers natural-language questions (English and Japanese) by retrieving relevant chunks from ingested PDF/DOCX/XLSX documents and generating answers with a locally-hosted LLM — no internet connection or external API calls required at query time.
+A fully local, offline RAG (retrieval-augmented generation) assistant for equipment manuals and factory documentation. It answers natural-language questions (English and Japanese) by retrieving relevant chunks from ingested PDF/DOCX/XLSX documents and generating answers with a locally-hosted LLM — no internet connection or external API calls required at query time.
 
 ## How it works
 
