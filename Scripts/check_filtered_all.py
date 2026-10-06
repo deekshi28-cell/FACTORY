@@ -1,3 +1,6 @@
+import os, sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "app"))
+import config  # noqa: E402
 import pymupdf
 import os
 import zipfile
@@ -60,7 +63,7 @@ def count_filtered_zip_based(filepath, min_size=150):
 
 
 if __name__ == "__main__":
-    documents_folder = r"D:\FactoryKA\documents"
+    documents_folder = config.DOCUMENTS_DIR
     all_files = os.listdir(documents_folder)
 
     grand_total = {"total_found": 0, "too_small": 0, "too_large": 0, "kept": 0}

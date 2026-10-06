@@ -1,3 +1,6 @@
+import os, sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "app"))
+import config  # noqa: E402
 import re
 import json
 from search import search_chunks
@@ -21,7 +24,7 @@ def extract_filenames(expected_source):
     return filenames
 
 
-with open(r"D:\FactoryKA\test_questions.json", "r", encoding="utf-8") as f:
+with open(config.TEST_QUESTIONS_PATH, "r", encoding="utf-8") as f:
     questions = json.load(f)
 
 hits = 0

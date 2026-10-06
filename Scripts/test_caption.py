@@ -1,3 +1,6 @@
+import os, sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "app"))
+import config  # noqa: E402
 import requests
 import base64
 
@@ -23,6 +26,6 @@ def caption_image(image_path, prompt="Describe this image in one or two sentence
     return data["response"]
 
 if __name__ == "__main__":
-    test_image = r"D:\FactoryKA\extracted_images\7_p1_img0.png"
+    test_image = os.path.join(config.EXTRACTED_IMAGES_DIR, "7_p1_img0.png")
     caption = caption_image(test_image)
     print(f"Caption: {caption}")

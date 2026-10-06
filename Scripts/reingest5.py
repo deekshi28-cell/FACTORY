@@ -1,3 +1,4 @@
+import os
 """
 Re-ingests ONLY the 4 flagged pages of 5.pdf (2, 205, 206, 207) using OCR,
 without touching the other ~200 pages that already have good extracted text.
@@ -29,7 +30,7 @@ logger = logging.getLogger("reingest5")
 retrieval.init()
 
 TARGET_PAGES = {2, 205, 206, 207}
-filepath = r"D:\FactoryKA\documents\5.pdf"
+filepath = os.path.join(config.DOCUMENTS_DIR, "5.pdf")
 
 print("Running OCR across all of 5.pdf (this may take a while for a large file)...")
 t0 = time.time()

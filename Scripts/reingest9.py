@@ -1,3 +1,6 @@
+import os, sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "app"))
+import config  # noqa: E402
 """
 One-off script to re-ingest 9.pdf with OCR turned on, after the normal
 (non-OCR) ingest run returned 0 chunks for it - likely because it's a
@@ -12,7 +15,7 @@ logger = logging.getLogger("reingest9")
 
 retrieval.init()
 
-filepath = r"D:\FactoryKA\documents\9.pdf"
+filepath = os.path.join(config.DOCUMENTS_DIR, "9.pdf")
 try:
     n = ingest_document(filepath, use_ocr=True)
 except Exception as e:

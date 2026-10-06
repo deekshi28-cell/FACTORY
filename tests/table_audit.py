@@ -1,3 +1,6 @@
+import os, sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "app"))
+import config  # noqa: E402
 from readers import read_docx
 
 def is_suspicious_header(header_row):
@@ -48,7 +51,7 @@ def audit_tables(filepath):
 
 
 if __name__ == "__main__":
-    word_file = r"D:\FactoryKA\documents\6.docx"  # update path
+    word_file = os.path.join(config.DOCUMENTS_DIR, "6.docx")  # update path
     clean, suspicious = audit_tables(word_file)
 
     print(f"Total tables: {len(clean) + len(suspicious)}")

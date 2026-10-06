@@ -1,7 +1,10 @@
+import os, sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "app"))
+import config  # noqa: E402
 from readers import extract_images_from_pdf
 
-pdf_file = r"D:\FactoryKA\documents\7.pdf" 
-output_folder = r"D:\FactoryKA\extracted_images"
+pdf_file = os.path.join(config.DOCUMENTS_DIR, "7.pdf") 
+output_folder = config.EXTRACTED_IMAGES_DIR
 
 images = extract_images_from_pdf(pdf_file, output_folder)
 print(f"Total images extracted: {len(images)}")

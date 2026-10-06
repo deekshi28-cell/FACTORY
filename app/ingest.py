@@ -190,7 +190,7 @@ if __name__ == "__main__":
     # code.
     retrieval.init()
 
-    documents_folder = r"D:\FactoryKA\documents"
+    documents_folder = config.DOCUMENTS_DIR
 
     files_to_ingest = [
         "11.pdf", "12.pdf", "13.pdf", "14.pdf", "17.pdf",

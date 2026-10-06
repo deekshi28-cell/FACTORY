@@ -1,6 +1,9 @@
+import os, sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "app"))
+import config  # noqa: E402
 import json
 
-with open(r"D:\FactoryKA\captions_7pdf.json", "r", encoding="utf-8") as f:
+with open(os.path.join(config.RESULTS_DIR, "captions_7pdf.json"), "r", encoding="utf-8") as f:
     results = json.load(f)
 
 failed = [r for r in results if r['caption'] == "CAPTION_FAILED"]

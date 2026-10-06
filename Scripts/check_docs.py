@@ -1,9 +1,12 @@
+import os, sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "app"))
+import config  # noqa: E402
 import fitz  # pymupdf
 import os
 import docx
 import openpyxl
 
-folder = r"D:\FactoryKA\documents"
+folder = config.DOCUMENTS_DIR
 total_pages = 0
 
 print(f"{'File':<50}{'Pages':<10}{'Type':<12}{'Text?':<10}")

@@ -1,3 +1,6 @@
+import os, sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "app"))
+import config  # noqa: E402
 from search import collection
 from ingest import ingest_xlsx, ingest_docx
 import os
@@ -22,7 +25,7 @@ print(f"Deleting {len(ids_to_delete)} old chunks...")
 if ids_to_delete:
     collection.delete(ids=ids_to_delete)
 
-documents_folder = r"D:\FactoryKA\documents"
+documents_folder = config.DOCUMENTS_DIR
 for fname, ftype in files_to_fix:
     path = os.path.join(documents_folder, fname)
     if os.path.exists(path):

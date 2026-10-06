@@ -1,3 +1,6 @@
+import os, sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "app"))
+import config  # noqa: E402
 """
 Scans every PDF in the documents folder, page by page, and flags any page
 with little or no extractable text - a strong sign it's a scanned/image
@@ -13,7 +16,7 @@ Does not modify the database - read-only, just prints a report.
 import os
 import fitz  # PyMuPDF
 
-DOCUMENTS_FOLDER = r"D:\FactoryKA\documents"
+DOCUMENTS_FOLDER = config.DOCUMENTS_DIR
 
 # A page with fewer than this many extracted characters is flagged as
 # likely scanned/image-only. Adjust if you get too many/few false positives -

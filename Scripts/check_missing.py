@@ -1,7 +1,10 @@
+import os, sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "app"))
+import config  # noqa: E402
 import os
 from search import collection
 
-documents_folder = r"D:\FactoryKA\documents"
+documents_folder = config.DOCUMENTS_DIR
 all_files = set(os.listdir(documents_folder))
 
 all_data = collection.get()

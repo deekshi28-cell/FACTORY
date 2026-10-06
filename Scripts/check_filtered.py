@@ -1,3 +1,6 @@
+import os, sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "app"))
+import config  # noqa: E402
 import pymupdf
 import os
 
@@ -30,7 +33,7 @@ def count_filtered_images(filepath, min_size=250, max_size=1800):
 
 
 if __name__ == "__main__":
-    documents_folder = r"D:\FactoryKA\documents"
+    documents_folder = config.DOCUMENTS_DIR
     pdf_files = [f for f in os.listdir(documents_folder) if f.lower().endswith(".pdf")]
 
     grand_total = {"total_found": 0, "too_small": 0, "too_large": 0, "kept": 0}

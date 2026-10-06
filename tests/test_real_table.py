@@ -1,8 +1,11 @@
+import os, sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "app"))
+import config  # noqa: E402
 from readers import read_docx
 from chunker import chunk_table
 
 # point this at the same Word file you tested earlier
-word_file = r"D:\FactoryKA\documents\6.docx"  # update to your actual filename
+word_file = os.path.join(config.DOCUMENTS_DIR, "6.docx")  # update to your actual filename
 
 result = read_docx(word_file)
 print(f"Total tables found: {len(result['tables'])}")

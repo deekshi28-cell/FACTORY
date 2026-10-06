@@ -1,3 +1,6 @@
+import os, sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "app"))
+import config  # noqa: E402
 import pymupdf  
 import os
 import pytesseract
@@ -307,7 +310,7 @@ def extract_images_from_xlsx(filepath, output_folder, min_size=150):
 if __name__ == "__main__":
     
     print("=== Verifying merged-cell fix on 6.docx ===")
-    test_file = r"D:\FactoryKA\documents\6.docx"
+    test_file = os.path.join(config.DOCUMENTS_DIR, "6.docx")
     result = read_docx(test_file)
 
     for idx in [30, 31]:
