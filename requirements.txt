@@ -8,3 +8,5 @@ pytesseract==0.3.13
 python-docx==1.2.0
 openpyxl==3.1.5
 langdetect==1.0.9
+Pillow==12.3.0
+Pillow==12.3.0
