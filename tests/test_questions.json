@@ -803,5 +803,40 @@
     "question": "フォルトコードE-99の意味は何ですか？ (What does fault code E-99 mean?)",
     "expected_answer": "I don't have enough information to answer this",
     "expected_source": "N/A"
+  },
+  {
+    "id": 117,
+    "category": "Edge Case",
+    "question": "フォルトコードＥ－０１の原因は何ですか？ (full-width characters)",
+    "expected_answer": "Overcurrent during acceleration - caused by motor overload, short circuit in motor cable, or acceleration time too short.",
+    "expected_source": "VFD3000_Fault_Alarm_Codes.xlsx (Row 2-16)"
+  },
+  {
+    "id": 118,
+    "category": "Edge Case",
+    "question": "E-15とは？ (bare fault code in Japanese)",
+    "expected_answer": "Encoder feedback loss - caused by disconnected/damaged encoder cable or encoder failure.",
+    "expected_source": "VFD3000_Fault_Alarm_Codes.xlsx (Row 2-16)"
+  },
+  {
+    "id": 119,
+    "category": "Edge Case",
+    "question": "フォルトコードの重大度は何ですか？ (no fault code given)",
+    "expected_answer": "Asks the user to specify which fault code they mean, since no code was given.",
+    "expected_source": "N/A"
+  },
+  {
+    "id": 120,
+    "category": "Edge Case",
+    "question": "E-17はE-12より重大ですか？ (comparison)",
+    "expected_answer": "No. E-12 is Warning while E-17 is Info, so E-12 is more severe.",
+    "expected_source": "VFD3000_Fault_Alarm_Codes.xlsx (Row 2-16), VFD3000_Fault_Alarm_Codes.xlsx (Row 17-27)"
+  },
+  {
+    "id": 121,
+    "category": "Edge Case",
+    "question": "フォルトコード E-O1 の意味を教えてください (letter O instead of zero typo)",
+    "expected_answer": "Overcurrent during acceleration - caused by motor overload, short circuit in motor cable, or acceleration time too short.",
+    "expected_source": "VFD3000_Fault_Alarm_Codes.xlsx (Row 2-16)"
   }
 ]
