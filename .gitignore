@@ -16,3 +16,7 @@ Results/output.txt
 Results/test4_page18_highres.png
 tests/extracted_images/
 ~$*
+Results/all_captions.json
+Results/captions_7pdf.json
+Results/output.txt
+Results/ingest.log
