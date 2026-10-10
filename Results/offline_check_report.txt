@@ -1,0 +1,27 @@
+KPI A10 - offline check
+Started: 2026-10-09 11:51:53
+Network guard ON: any non-local connection or DNS lookup is blocked and recorded.
+
+Startup OK (109s)
+
+[OK ] English text   (142s) What causes an E-09 ground fault?
+       answer : An E-09 ground fault is caused by insulation breakdown in the motor winding or cable, or moisture ingress. To address this issue, you should megger-test the mot
+       sources: VFD3000_Fault_Alarm_Codes.xlsx (Row 2-16), VFD_Fault_Alarm_Code_Table.xlsx (Row 2-16)
+[OK ] Japanese text  (203s) E-01フォルトコードの意味は何ですか？
+       answer : E-01フォルトコードは「オーバーカレント（OC）発生中」を意味します。これはモータの過負荷、モータケーブルのショート回路、加速時間が短すぎることが原因である可能性があります。推奨される対応は、モータとケーブルのショート回路を確認し、加速時間（ACCパラメータ）を増加させ、モータの規格電流とドライブ設定が一致しているこ
+       sources: VFD3000_Fault_Alarm_Codes.xlsx (Row 2-16), 17.pdf (page 2)
+[OK ] English table  (107s) What should I do for an E-04 overvoltage fault?
+       answer : For an E-04 overvoltage fault during acceleration, you should: 1. Verify that the incoming supply voltage is within the rated range. 2. Check for any power line
+       sources: VFD3000_Fault_Alarm_Codes.xlsx (Row 2-16), VFD3000_Fault_Alarm_Codes.xlsx (Row 17-27)
+[OK ] Picture        (54s) What does the image of the UC100 controller show?
+       answer : The image of the UC100 controller shows a device used for controlling CNC machines. It has a DB9 connector on the left side and a USB cable on the right side. T
+       sources: 13.pdf (page 2), 13.pdf (page 1), 13.pdf (page 7)
+       picture: /api/image/13_p2_img1.jpeg -> loaded OK
+[OK ] Not found      (83s) What is the recommended dosage for ibuprofen?
+       answer : I don't have enough information to answer this. The provided context is about pressure consistency for the X-Press, application limits for some unspecified prod
+       sources: No specific source cited
+
+External links in web page files: none
+
+Blocked outside calls: 0
+RESULT: PASS - zero outside calls, all questions answered

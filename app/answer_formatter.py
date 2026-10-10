@@ -11,6 +11,8 @@ it's given.
 
 import os
 import re
+
+import config
 from langdetect import detect, DetectorFactory
 
 DetectorFactory.seed = 0
@@ -38,22 +40,43 @@ _UNIT_PATTERN = re.compile(
 )
 
 
+_KEYWORD_UNITS = {
+    "price": {"$", "dollar", "dollars"}, "cost": {"$", "dollar", "dollars"},
+    "weight": {"lb", "lbs", "pound", "pounds", "kg"},
+    "rating": {"amp", "amps", "volt", "volts", "hp"}, "capacity": {"amp", "amps", "hp", "kg", "lb", "lbs"},
+    "dimension": {"inch", "inches", "mm"}, "size": {"inch", "inches", "mm"},
+}
+_QUERY_QUANTITY = re.compile(r"\d+\.?\d*\s*(hp|kw|volts?|v|amps?|a|lbs?|kg|mm|inch(?:es)?|pole)\b", re.IGNORECASE)
+
+
 def detect_conflicting_values(query, docs):
     """
     Code-level (non-LLM) check: does the query ask about a quantity, and do
-    the retrieved chunks contain more than two different values with units
-    for that kind of quantity? If so, we force a clarification response
-    rather than relying on the LLM to notice on its own.
+    the retrieved chunks contain more than two different values, IN THE UNIT
+    FAMILY THAT QUANTITY USES (price -> $, weight -> lb/kg, ...), for it?
+    Only then force a clarification. Two guards avoid false triggers:
+      - values in other units (a 640 $ price near a 200 amp rating) are ignored,
+        so unrelated questions ("Tesla price") fall through to the normal
+        not-found answer instead of a bogus "which product?" prompt;
+      - if the question already states a quantity ("35 HP"), it is not
+        underspecified, so the model answers instead of asking.
     """
     query_lower = query.lower()
-    if not any(kw in query_lower for kw in _QUANTITY_KEYWORDS):
+    kws = [kw for kw in _QUANTITY_KEYWORDS if kw in query_lower]
+    if not kws:
         return None
+    if _QUERY_QUANTITY.search(query):
+        return None
+
+    wanted = set()
+    for kw in kws:
+        wanted |= _KEYWORD_UNITS.get(kw, set())
 
     values_with_units = set()
     for doc in docs:
-        matches = _UNIT_PATTERN.findall(doc)
-        for value, unit in matches:
-            values_with_units.add(f"{value} {unit.lower()}")
+        for value, unit in _UNIT_PATTERN.findall(doc):
+            if not wanted or unit.lower().rstrip(".") in wanted:
+                values_with_units.add(f"{value} {unit.lower()}")
 
     if len(values_with_units) > 2:
         return values_with_units
@@ -73,6 +96,44 @@ def build_conflicting_value_answer(conflicting, detected_lang):
         f"different products, models, or categories in the source material. "
         f"Could you specify which product, type, or category you're asking about?"
     )
+
+
+# --- Point-wise formatting safety net ---------------------------------------
+_LIST_LINE = re.compile(r"^\s*(?:[-*\u2022\u30fb]\s+|\d+[\.)]\s+)")
+_SENT_SPLIT = re.compile(r"(?<=[.!?])\s+(?=[A-Z0-9(\"'])|(?<=\u3002)\s*|\s+(?=Note:)")
+
+
+def format_as_points(text):
+    """
+    The 7B model sometimes ignores the 'answer in points' instruction and writes one
+    paragraph. This is a code-level safety net so the layout never depends on the model:
+    if the answer has no list lines and 2+ sentences, put the first sentence on its own
+    line (the lead) and each remaining sentence on its own '- ' line. Answers that are
+    already lists, one-sentence answers and clarification questions are left alone.
+    """
+    if text:
+        # drop empty bullet lines such as a lone "-" the model sometimes leaves behind
+        text = "\n".join(l for l in text.splitlines() if l.strip() not in ("-", "*", "\u2022", "\u30fb")).strip()
+    if not text or "\n" in text.strip() and any(_LIST_LINE.match(l) for l in text.splitlines()):
+        return text
+    if text.strip().endswith(("?", "\uff1f")):          # clarification question
+        return text
+    paragraphs = [p.strip() for p in text.strip().split("\n") if p.strip()]
+    out = []
+    for para in paragraphs:
+        if _LIST_LINE.match(para):
+            out.append(para)
+            continue
+        sentences = [x.strip() for x in _SENT_SPLIT.split(para) if x and x.strip()]
+        if len(sentences) < 2:
+            out.append(para)
+            continue
+        if len(sentences) == 2:
+            out.extend("- " + x for x in sentences)      # 2 points, both bulleted
+        else:
+            out.append(sentences[0])                      # lead line
+            out.extend("- " + x for x in sentences[1:])
+    return "\n".join(out)
 
 
 # --- Parsing the raw LLM response -----------------------------------------
@@ -96,7 +157,7 @@ def parse_used_sources(raw_answer):
     if not answer_clean:
         answer_clean = "I don't have enough information to answer this."
 
-    return used_ids, strip_source_mentions(answer_clean)
+    return used_ids, format_as_points(strip_source_mentions(answer_clean))
 
 
 # --- Picture references / pointers -----------------------------------------
@@ -141,6 +202,27 @@ def format_picture_pointers(picture_sources, lang):
             return f"See pictures in {files_formatted}."
 
 
+def resolve_image_path(stored_path):
+    """
+    The image path saved in ChromaDB at ingestion time is an old absolute path
+    (e.g. D:\\FactoryKA\\extracted_images\\x.png). After the folders were
+    reorganised / paths moved into config, that exact path no longer exists, so
+    pictures silently stopped showing. Only the FILE NAME is reliable, so look
+    for it in the folders listed in config.IMAGE_DIRS.
+    Returns a path that exists on disk, or None.
+    """
+    if not stored_path:
+        return None
+    if os.path.exists(stored_path):
+        return stored_path
+    name = os.path.basename(stored_path.replace("\\", "/"))
+    for folder in config.IMAGE_DIRS:
+        candidate = os.path.join(folder, name)
+        if os.path.exists(candidate):
+            return candidate
+    return None
+
+
 def collect_picture_data(used_ids, metas):
     """
     Given the source ids the LLM said it used and the full metadata list,
@@ -166,8 +248,8 @@ def collect_picture_data(used_ids, metas):
             seen_pointer_keys.add(key)
             picture_sources.append(key)
 
-        img_path = meta.get("image_path")
-        if img_path and os.path.exists(img_path):
+        img_path = resolve_image_path(meta.get("image_path"))
+        if img_path:
             if not any(img["path"] == img_path for img in attached_images):
                 attached_images.append({
                     "path": img_path,

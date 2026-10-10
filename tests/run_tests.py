@@ -39,6 +39,13 @@ KEY_TOKEN_RESCUE_MIN_SIM = 0.60
 # language. This does NOT apply to other categories - there, embedding
 # similarity to expected_answer remains the only check.
 DECLINE_PHRASES = [
+    "not present in",
+    "isn't in the",
+    "is not in the",
+    "isn't present",
+    "not in the provided",
+    "not in the context",
+    "don't have enough",
     "does not contain",
     "do not contain",
     "not contain any information",
@@ -158,9 +165,24 @@ def check_answer_match(expected_answer, actual_answer, threshold=ANSWER_MATCH_TH
         return False, 0.0
     try:
         emb_expected = np.array(search.embed_text(expected_answer))
-        emb_actual = np.array(search.embed_text(actual_answer))
-        denom = (np.linalg.norm(emb_expected) * np.linalg.norm(emb_actual)) + 1e-8
-        similarity = float(np.dot(emb_expected, emb_actual) / denom)
+
+        def _sim(text):
+            e = np.array(search.embed_text(text))
+            return float(np.dot(emb_expected, e) / ((np.linalg.norm(emb_expected) * np.linalg.norm(e)) + 1e-8))
+
+        similarity = _sim(actual_answer)
+        # Detailed answers are longer than the short expected answer, which dilutes the
+        # whole-answer embedding even when the answer is correct. For short expected
+        # answers also compare against each 1-3 line window of the actual answer and keep
+        # the best score. Key-token checks in score_answer still apply, so a window that
+        # is merely similar-sounding but has a wrong code/number/severity still fails.
+        if len(expected_answer) <= 250 and len(actual_answer) > len(expected_answer) * 1.5:
+            lines = [l.strip() for l in re.split(r"[\n]+|(?<=[.!?。])\s+", actual_answer) if len(l.strip()) > 8]
+            for w in (1, 2, 3):
+                for i in range(0, max(1, len(lines) - w + 1)):
+                    chunk = " ".join(lines[i:i + w])
+                    if chunk and chunk != actual_answer:
+                        similarity = max(similarity, _sim(chunk))
         return similarity >= threshold, round(similarity, 3)
     except Exception as e:
         print(f"  (warning: answer similarity check failed: {e})")

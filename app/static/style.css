@@ -17,8 +17,12 @@
   --amber-soft: #FBF0E1;
   --green: #2E7D4F;
   --red: #C0392B;
-  --font: 'IBM Plex Sans', 'Noto Sans JP', sans-serif;
-  --mono: 'IBM Plex Mono', monospace;
+  /* Offline-safe font stacks: no web fonts are downloaded. If IBM Plex / Noto Sans JP
+     are installed locally they are used; otherwise the OS fonts below (Windows, macOS,
+     Linux) render English and Japanese text. */
+  --font: 'IBM Plex Sans', 'Segoe UI', 'Yu Gothic UI', 'Yu Gothic', 'Meiryo', 'Hiragino Sans',
+          'Noto Sans JP', 'Noto Sans CJK JP', system-ui, -apple-system, Arial, sans-serif;
+  --mono: 'IBM Plex Mono', Consolas, 'Cascadia Mono', 'Courier New', ui-monospace, monospace;
   --shadow: 0 1px 2px rgba(22,35,61,0.06), 0 2px 6px rgba(22,35,61,0.04);
 }
 

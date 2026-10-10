@@ -64,10 +64,10 @@ function appendFormattedText(el, text) {
   });
 }
 
-// Detects numbered ("1. ") or bulleted ("- ") steps anywhere in the answer
-// and renders them as a proper indented list instead of one run-on
-// paragraph, so multi-step answers read neatly. Falls back to a plain
-// paragraph (still with bold support) for normal answers.
+// Renders the answer block by block, keeping the original order: normal lines become
+// paragraphs, runs of "1. " lines become a numbered list, runs of "- " lines become a
+// bulleted list. (A single bullet or step is also shown as a list, and a line that
+// comes AFTER a list - e.g. "See the picture on page 3" - stays below it.)
 function renderAnswer(container, text) {
   text = text || "(no answer)";
 
@@ -78,40 +78,28 @@ function renderAnswer(container, text) {
   }
 
   const stepPattern = /^\d+[\.\)]\s+/;
-  const bulletPattern = /^[-•]\s+/;
-  const stepLines = lines.filter((l) => stepPattern.test(l));
-  const bulletLines = lines.filter((l) => bulletPattern.test(l));
+  const bulletPattern = /^[-•・*]\s+/;
+  let current = null;
 
-  if (stepLines.length >= 2 || bulletLines.length >= 2) {
-    const pattern = stepLines.length >= 2 ? stepPattern : bulletPattern;
-    const tag = stepLines.length >= 2 ? "ol" : "ul";
-    const intro = [];
-    const items = [];
-    lines.forEach((l) => {
-      if (pattern.test(l)) {
-        items.push(l.replace(pattern, ""));
-      } else {
-        intro.push(l);
-      }
-    });
-    if (intro.length) {
+  lines.forEach((l) => {
+    const kind = stepPattern.test(l) ? "ol" : bulletPattern.test(l) ? "ul" : "p";
+    if (kind === "p") {
+      current = null;
       const p = document.createElement("p");
-      appendFormattedText(p, intro.join(" "));
+      appendFormattedText(p, l);
       container.appendChild(p);
+      return;
     }
-    const list = document.createElement(tag);
-    list.className = "answer-list";
-    items.forEach((item) => {
-      const li = document.createElement("li");
-      appendFormattedText(li, item);
-      list.appendChild(li);
-    });
-    container.appendChild(list);
-  } else {
-    const p = document.createElement("p");
-    appendFormattedText(p, text);
-    container.appendChild(p);
-  }
+    if (!current || current.tag !== kind) {
+      const list = document.createElement(kind);
+      list.className = "answer-list";
+      container.appendChild(list);
+      current = { tag: kind, el: list };
+    }
+    const li = document.createElement("li");
+    appendFormattedText(li, l.replace(kind === "ol" ? stepPattern : bulletPattern, ""));
+    current.el.appendChild(li);
+  });
 }
 
 function docIcon() {
@@ -224,24 +212,8 @@ askForm.addEventListener("submit", async (e) => {
     // Console instead of guessing.
     console.log("Answer response:", data);
 
-    const bubble = botMsg.querySelector(".bubble");
-
-    // If the backend returned an error status (e.g. the model call timed
-    // out or Ollama was unreachable), show that error clearly instead of
-    // falling through to the normal answer-rendering path - otherwise
-    // data.answer/data.sources are undefined and this would silently look
-    // like a false "not found, no sources" answer instead of a real failure.
-    if (!res.ok) {
-      bubble.classList.remove("is-clarification");
-      bubble.innerHTML = "";
-      const p = document.createElement("p");
-      p.textContent = data.error || "Something went wrong answering this question. Please try again.";
-      bubble.appendChild(p);
-      sourcesPanel.innerHTML = `<div class="panel-empty">No answer was generated for this question.</div>`;
-      return;
-    }
-
     const isClarification = /could you specify|which product|which equipment|どの製品|教えていただけます/i.test(data.answer || "");
+    const bubble = botMsg.querySelector(".bubble");
     bubble.classList.toggle("is-clarification", isClarification);
     bubble.innerHTML = "";
 

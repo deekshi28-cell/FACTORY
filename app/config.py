@@ -19,6 +19,9 @@ import os
 BASE_DIR = os.environ.get("FACTORY_BASE_DIR", r"D:\FactoryKA")
 
 # --- Derived paths -----------------------------------------------------------
+# Folder names are case-sensitive on Linux/GitHub, so use the real names: "Results", "tests".
+RESULTS_DIR = os.environ.get("FACTORY_RESULTS_DIR", os.path.join(BASE_DIR, "Results"))
+TESTS_DIR = os.environ.get("FACTORY_TESTS_DIR", os.path.join(BASE_DIR, "tests"))
 DOCUMENTS_DIR = os.environ.get("FACTORY_DOCUMENTS_DIR", os.path.join(BASE_DIR, "documents"))
 
 _default_chroma_dir = os.path.join(BASE_DIR, "Results", "chroma_db")
@@ -30,6 +33,17 @@ _default_img_dir = os.path.join(BASE_DIR, "tests", "extracted_images")
 if not os.path.exists(_default_img_dir):
     _default_img_dir = os.path.join(BASE_DIR, "extracted_images")
 EXTRACTED_IMAGES_DIR = os.environ.get("FACTORY_EXTRACTED_IMAGES_DIR", _default_img_dir)
+
+# Every folder where extracted pictures may live (older runs / reorganised folders).
+# ChromaDB stores an old absolute path per picture, so the app looks up the FILE NAME
+# in each of these folders in order. First match wins.
+IMAGE_DIRS = []
+for _d in (EXTRACTED_IMAGES_DIR,
+           os.path.join(RESULTS_DIR, "extracted_images"),
+           os.path.join(TESTS_DIR, "extracted_images"),
+           os.path.join(BASE_DIR, "extracted_images")):
+    if _d not in IMAGE_DIRS:
+        IMAGE_DIRS.append(_d)
 
 _default_test_q = os.path.join(BASE_DIR, "tests", "test_questions.json")
 if not os.path.exists(_default_test_q):
@@ -68,9 +82,9 @@ MAX_KEYWORD_CHUNKS = int(os.environ.get("FACTORY_MAX_KEYWORD_CHUNKS", "2"))
 #   FACTORY_LLM_NUM_THREAD if you know your PHYSICAL core count and have re-measured.
 LLM_KEEP_ALIVE = os.environ.get("FACTORY_LLM_KEEP_ALIVE", "60m")
 LLM_NUM_CTX = int(os.environ.get("FACTORY_LLM_NUM_CTX", "8192"))
-LLM_MAX_TOKENS = int(os.environ.get("FACTORY_LLM_MAX_TOKENS", "300"))
+LLM_MAX_TOKENS = int(os.environ.get("FACTORY_LLM_MAX_TOKENS", "600"))
 LLM_NUM_THREAD = os.environ.get("FACTORY_LLM_NUM_THREAD")  # unset by default - let Ollama choose
-LLM_TIMEOUT = int(os.environ.get("FACTORY_LLM_TIMEOUT", "120"))
+LLM_TIMEOUT = int(os.environ.get("FACTORY_LLM_TIMEOUT", "300"))
 
 TARGET_SECONDS = 15  # KPI #9 target
 

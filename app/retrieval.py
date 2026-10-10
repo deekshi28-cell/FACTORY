@@ -12,10 +12,24 @@ text) does not have to import anything related to answer generation.
 
 import os
 import re
-from sentence_transformers import SentenceTransformer
-import chromadb
 
 import config
+
+# --- Offline guard ---------------------------------------------------------
+# The system must run fully offline. By default, the Hugging Face libraries are
+# told NOT to contact the internet (no update checks, no downloads), so they use
+# only the model already cached on this machine. This MUST be set before
+# sentence_transformers is imported, because the libraries read it at import time.
+# One-time setup on a new machine: set FACTORY_ALLOW_MODEL_DOWNLOAD=1 to let
+# BGE-M3 download once; after that, leave it unset.
+ALLOW_MODEL_DOWNLOAD = os.environ.get("FACTORY_ALLOW_MODEL_DOWNLOAD", "0") == "1"
+if not ALLOW_MODEL_DOWNLOAD:
+    os.environ.setdefault("HF_HUB_OFFLINE", "1")
+    os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
+
+from sentence_transformers import SentenceTransformer  # noqa: E402
+import chromadb  # noqa: E402
+from chromadb.config import Settings  # noqa: E402
 
 CHROMA_DIR = config.CHROMA_DIR
 N_RESULTS = config.N_RESULTS
@@ -43,9 +57,24 @@ def init():
         return
 
     print("Loading embedding model (BGE-M3)... this may take a minute on first run.")
-    _embedder = SentenceTransformer(_EMBED_MODEL_NAME)
+    try:
+        _embedder = SentenceTransformer(_EMBED_MODEL_NAME)
+    except Exception as e:
+        if not ALLOW_MODEL_DOWNLOAD:
+            raise RuntimeError(
+                f"Embedding model '{_EMBED_MODEL_NAME}' could not be loaded from the local "
+                f"cache while offline mode is on. On a machine WITH internet, run once with "
+                f"FACTORY_ALLOW_MODEL_DOWNLOAD=1 to cache it, then copy the cache to this "
+                f"machine. Original error: {e}"
+            ) from e
+        raise
 
-    _client = chromadb.PersistentClient(path=CHROMA_DIR)
+    # anonymized_telemetry=False: ChromaDB otherwise sends anonymous usage
+    # statistics to an external server, which an offline system must not do.
+    _client = chromadb.PersistentClient(
+        path=CHROMA_DIR,
+        settings=Settings(anonymized_telemetry=False),
+    )
     _collection = _client.get_or_create_collection(name="factory_docs")
 
 
