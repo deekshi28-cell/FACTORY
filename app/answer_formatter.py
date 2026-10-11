@@ -103,6 +103,13 @@ _LIST_LINE = re.compile(r"^\s*(?:[-*\u2022\u30fb]\s+|\d+[\.)]\s+)")
 _SENT_SPLIT = re.compile(r"(?<=[.!?])\s+(?=[A-Z0-9(\"'])|(?<=\u3002)\s*|\s+(?=Note:)")
 
 
+_DECLINE_START = re.compile(
+    r"^\s*[-*\u2022]?\s*(i don't have enough information|i do not have enough information|"
+    r"the answer isn't in|the answer is not in|not found in the documents|"
+    r"\u60c5\u5831\u304c\u4e0d\u8db3|\u5341\u5206\u306a\u60c5\u5831\u304c\u3042\u308a\u307e\u305b\u3093|\u8a72\u5f53\u3059\u308b\u60c5\u5831\u304c)",
+    re.IGNORECASE)
+
+
 def format_as_points(text):
     """
     The 7B model sometimes ignores the 'answer in points' instruction and writes one
@@ -114,6 +121,9 @@ def format_as_points(text):
     if text:
         # drop empty bullet lines such as a lone "-" the model sometimes leaves behind
         text = "\n".join(l for l in text.splitlines() if l.strip() not in ("-", "*", "\u2022", "\u30fb")).strip()
+    if text and _DECLINE_START.match(text):
+        # a "not found" answer is plain sentences, not a list - undo any bullets
+        return " ".join(re.sub(r"^\s*[-*\u2022]\s*", "", l).strip() for l in text.splitlines() if l.strip())
     if not text or "\n" in text.strip() and any(_LIST_LINE.match(l) for l in text.splitlines()):
         return text
     if text.strip().endswith(("?", "\uff1f")):          # clarification question

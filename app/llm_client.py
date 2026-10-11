@@ -53,6 +53,7 @@ ANSWER STYLE - give a COMPLETE, point-wise answer (never one sentence, never one
 - Keep exact values, units, fault codes and part numbers exactly as written in the source.
 - A warning, caution or safety statement that is IN the source goes on its own line starting with "Note:". Do not add generic notes of your own.
 - Every "- " line must contain a complete fact. Never write an empty "-" line.
+- EXCEPTIONS (these override the point-wise layout): (1) when the answer is not in the context, write plain sentences with NO bullets; (2) when the question does not say WHICH fault code or part it means, do NOT list every code - ask which one in a plain sentence ending with a question mark.
 - Use only facts that are in the context; never guess to fill space. Plain text only: no headings, bold, tables or code blocks.
 
 Example of the required layout (fictional pump, shows format only):
