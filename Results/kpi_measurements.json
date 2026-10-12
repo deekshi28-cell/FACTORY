@@ -1,0 +1,226 @@
+{
+  "measured_at": "2026-10-12 13:40:02",
+  "A3": {
+    "hits": 86,
+    "total": 88,
+    "rate": 0.977,
+    "misses": [
+      {
+        "id": 65,
+        "question": "For a 55 HP motor, compare the costs of Modification 3 and Modificatio",
+        "expected": [
+          "7.pdf (page 20)"
+        ],
+        "retrieved": [
+          "7.pdf (page 16)",
+          "reduced vol.pdf (page 11)",
+          "reduced vol.pdf (page 11)",
+          "c.pdf (page 5)",
+          "11.pdf (page 6)"
+        ]
+      },
+      {
+        "id": 121,
+        "question": "フォルトコード E-O1 の意味を教えてください (letter O instead of zero typo)",
+        "expected": [
+          "vfd3000_fault_alarm_codes.xlsx (row 2-16)"
+        ],
+        "retrieved": [
+          "6.pdf (page 23)",
+          "6.pdf (page 23)",
+          "6.pdf (page 23)",
+          "6.docx (table 15)",
+          "hoist.pdf (page 3)"
+        ]
+      }
+    ]
+  },
+  "A14_A15": {
+    "a14_shown": 13,
+    "a15_pointer": 14,
+    "total": 15,
+    "rows": [
+      {
+        "id": 4,
+        "picture_correct": true,
+        "pointer": true,
+        "picture": [
+          "7.pdf (page 20)"
+        ],
+        "expected": [
+          "7.pdf (page 20)"
+        ]
+      },
+      {
+        "id": 5,
+        "picture_correct": true,
+        "pointer": true,
+        "picture": [
+          "6.pdf (page 62)"
+        ],
+        "expected": [
+          "reduced vol.pdf (page 9)",
+          "7.pdf (page 24)",
+          "6.pdf (page 62)",
+          "synchronous.pdf (page 2)",
+          "7.pdf (page 4)"
+        ]
+      },
+      {
+        "id": 6,
+        "picture_correct": true,
+        "pointer": true,
+        "picture": [
+          "3.pdf (page 4)"
+        ],
+        "expected": [
+          "3.pdf (page 4)",
+          "9.pdf (page 2)",
+          "4 .pdf (page 9)"
+        ]
+      },
+      {
+        "id": 7,
+        "picture_correct": true,
+        "pointer": true,
+        "picture": [
+          "6.pdf (page 50)"
+        ],
+        "expected": [
+          "6.pdf (page 50)"
+        ]
+      },
+      {
+        "id": 8,
+        "picture_correct": true,
+        "pointer": true,
+        "picture": [
+          "ACT.pdf (page 9)"
+        ],
+        "expected": [
+          "act.pdf (page 9)",
+          "12.pdf (page 12)"
+        ]
+      },
+      {
+        "id": 9,
+        "picture_correct": true,
+        "pointer": true,
+        "picture": [
+          "reduced vol.pdf (page 13)"
+        ],
+        "expected": [
+          "reduced vol.pdf (page 13)"
+        ]
+      },
+      {
+        "id": 67,
+        "picture_correct": false,
+        "pointer": false,
+        "picture": [],
+        "expected": [
+          "8.pdf (page 8)",
+          "8.pdf (page 23)"
+        ]
+      },
+      {
+        "id": 68,
+        "picture_correct": true,
+        "pointer": true,
+        "picture": [
+          "2.pdf (page 2)"
+        ],
+        "expected": [
+          "2.pdf (page 2)",
+          "2.pdf (page 18)",
+          "2.pdf (page 16)",
+          "2.pdf (page 4)"
+        ]
+      },
+      {
+        "id": 69,
+        "picture_correct": true,
+        "pointer": true,
+        "picture": [
+          "3.pdf (page 2)"
+        ],
+        "expected": [
+          "3.pdf (page 2)"
+        ]
+      },
+      {
+        "id": 70,
+        "picture_correct": true,
+        "pointer": true,
+        "picture": [
+          "4 .pdf (page 2)"
+        ],
+        "expected": [
+          "4 .pdf (page 2)"
+        ]
+      },
+      {
+        "id": 71,
+        "picture_correct": true,
+        "pointer": true,
+        "picture": [
+          "4 .pdf (page 3)"
+        ],
+        "expected": [
+          "4 .pdf (page 3)",
+          "4 .pdf (page 7)"
+        ]
+      },
+      {
+        "id": 72,
+        "picture_correct": true,
+        "pointer": true,
+        "picture": [
+          "13.pdf (page 2)"
+        ],
+        "expected": [
+          "13.pdf (page 2)",
+          "13.pdf (page 1)",
+          "13.pdf (page 7)"
+        ]
+      },
+      {
+        "id": 73,
+        "picture_correct": false,
+        "pointer": true,
+        "picture": [
+          "6.pdf (page 29)"
+        ],
+        "expected": [
+          "hoist.pdf (page 2)"
+        ]
+      },
+      {
+        "id": 74,
+        "picture_correct": true,
+        "pointer": true,
+        "picture": [
+          "7.pdf (page 4)"
+        ],
+        "expected": [
+          "reduced vol.pdf (page 9)",
+          "7.pdf (page 4)",
+          "7.pdf (page 24)"
+        ]
+      },
+      {
+        "id": 106,
+        "picture_correct": true,
+        "pointer": true,
+        "picture": [
+          "13.pdf (page 1)"
+        ],
+        "expected": [
+          "13.pdf (page 2)",
+          "13.pdf (page 1)",
+          "13.pdf (page 7)"
+        ]
+      }
+    ]
+  }
+}

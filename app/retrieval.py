@@ -175,6 +175,84 @@ def _keyword_boost_chunks(query, max_extra=MAX_KEYWORD_CHUNKS):
     return extra_docs, extra_metas
 
 
+# --- Picture-intent boost ----------------------------------------------------
+# Questions such as "what is shown on the cover?" or "In Figure 1 ..." are about a picture,
+# but a picture caption often ranks below the longer text chunks and never reaches the
+# model (the diagram's caption was ranked 5th when only the top 4 are used). When the
+# question is clearly about an image, also pass the model:
+#   (a) the pictures on the same page as the best text chunks, and
+#   (b) the picture captions closest to the question across all documents.
+# Questions that do not mention a picture are not affected at all.
+PICTURE_SAME_PAGE_CHUNKS = getattr(config, "PICTURE_SAME_PAGE_CHUNKS", 2)
+PICTURE_POOL_CHUNKS = getattr(config, "PICTURE_POOL_CHUNKS", 2)
+
+_PICTURE_INTENT_RE = re.compile(
+    r"\b(?:image|images|picture|pictures|photo|photos|diagram|diagrams|figure|figures|fig|"
+    r"schematic|illustration|drawing|cover)\b"
+    r"|\u753b\u50cf|\u5199\u771f|\u56f3|\u8868\u7d19|\u30a4\u30e9\u30b9\u30c8",
+    re.IGNORECASE,
+)
+
+
+def _wants_picture(query):
+    return bool(_PICTURE_INTENT_RE.search(query))
+
+
+def _picture_boost_chunks(query, docs, metas):
+    """Returns (extra_docs, extra_metas) picture-caption chunks to add for a picture question."""
+    extra_docs, extra_metas = [], []
+
+    def _add(doc, meta):
+        if doc in docs or doc in extra_docs:
+            return False
+        extra_docs.append(doc)
+        extra_metas.append(meta)
+        return True
+
+    # (a) pictures on the same page as the best text chunks
+    added = 0
+    seen_pages = set()
+    for meta in metas[:3]:
+        if added >= PICTURE_SAME_PAGE_CHUNKS:
+            break
+        if meta.get("chunk_type") == "picture_caption":
+            continue
+        key = (meta.get("source_file"), meta.get("page_number"))
+        if key[0] is None or key in seen_pages:
+            continue
+        seen_pages.add(key)
+        try:
+            hit = _collection.get(
+                where={"$and": [{"source_file": key[0]}, {"page_number": key[1]},
+                                {"chunk_type": "picture_caption"}]},
+                limit=PICTURE_SAME_PAGE_CHUNKS,
+            )
+        except Exception as e:
+            print(f"[retrieval] same-page picture lookup failed for {key}: {e}")
+            continue
+        for d, m in zip(hit.get("documents", []), hit.get("metadatas", [])):
+            if added < PICTURE_SAME_PAGE_CHUNKS and _add(d, m):
+                added += 1
+
+    # (b) the picture captions closest to the question
+    added = 0
+    try:
+        pool = _collection.query(
+            query_embeddings=[embed_text(query)],
+            n_results=PICTURE_POOL_CHUNKS + 4,
+            where={"chunk_type": "picture_caption"},
+        )
+        for d, m in zip(pool["documents"][0], pool["metadatas"][0]):
+            if added >= PICTURE_POOL_CHUNKS:
+                break
+            if _add(d, m):
+                added += 1
+    except Exception as e:
+        print(f"[retrieval] picture-pool lookup failed: {e}")
+
+    return extra_docs, extra_metas
+
+
 # --- Main retrieval entry point ------------------------------------------
 
 def search_chunks(query, n_results=None):
@@ -232,6 +310,12 @@ def search_chunks(query, n_results=None):
                 added += 1
         results['documents'][0] = docs
         results['metadatas'][0] = metas
+
+    if _wants_picture(query):
+        pic_docs, pic_metas = _picture_boost_chunks(query, results['documents'][0], results['metadatas'][0])
+        if pic_docs:
+            results['documents'][0] = results['documents'][0] + pic_docs
+            results['metadatas'][0] = results['metadatas'][0] + pic_metas
 
     return results
 
