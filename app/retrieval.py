@@ -12,6 +12,7 @@ text) does not have to import anything related to answer generation.
 
 import os
 import re
+import unicodedata
 
 import config
 
@@ -106,6 +107,29 @@ def add_chunk(chunk_id, text, metadata):
     )
 
 
+# --- Fault-code normalisation ---------------------------------------------
+# Users type codes with a letter O instead of a zero ("E-O1") or in full-width
+# characters ("Ｅ－０１") in Japanese input. The documents contain "E-01", so an
+# exact keyword match would never find them. Only code-like tokens are touched;
+# the rest of the question (including Japanese text) is left exactly as typed.
+_CODE_RUN_RE = re.compile(r"[A-Za-z0-9\uFF21-\uFF3A\uFF41-\uFF5A\uFF10-\uFF19_\-\uFF0D\u2010\u2011\u2013]+")
+_CODE_FIX_RE = re.compile(r"^([A-Za-z]{1,4}[-_])((?=[0-9Oo]*[0-9])[0-9Oo]+)$")
+
+
+def _fix_code_token(run):
+    token = unicodedata.normalize("NFKC", run)
+    token = token.replace("\u2010", "-").replace("\u2011", "-").replace("\u2013", "-")
+    m = _CODE_FIX_RE.match(token)
+    if m:
+        token = m.group(1) + m.group(2).replace("O", "0").replace("o", "0")
+    return token
+
+
+def normalize_query(query):
+    """Fixes letter-O / full-width typos inside fault codes and part numbers only."""
+    return _CODE_RUN_RE.sub(lambda m: _fix_code_token(m.group(0)), query)
+
+
 # --- Keyword-boost search (exact fault codes / part numbers) ------------
 
 _CODE_CANDIDATE_RE = re.compile(
@@ -160,6 +184,7 @@ def search_chunks(query, n_results=None):
     and keyword-boost chunks for exact fault-code / part-number matches.
     """
     _require_init()
+    query = normalize_query(query)
     if n_results is None:
         n_results = N_RESULTS
 

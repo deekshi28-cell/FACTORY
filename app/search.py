@@ -59,6 +59,9 @@ def generate_answer(query, n_results=None):
       4. answer_formatter           - parse USED SOURCES, strip leaks, attach pictures
     """
     t_start = time.perf_counter()
+    # Fix letter-O / full-width typos in fault codes (E-O1 -> E-01) so both the search
+    # and the LLM see the code exactly as it is written in the documents.
+    query = retrieval.normalize_query(query)
     results = retrieval.search_chunks(query, n_results=n_results)
 
     docs = results['documents'][0]
