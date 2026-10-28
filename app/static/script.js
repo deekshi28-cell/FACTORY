@@ -73,8 +73,14 @@ function renderAnswer(container, text) {
 
   let lines = text.split("\n").map((l) => l.trim()).filter((l) => l);
   if (lines.length <= 1) {
-    const bySteps = text.split(/(?=\d+[\.\)]\s)/).map((l) => l.trim()).filter((l) => l);
-    if (bySteps.length > 1) lines = bySteps;
+    // A one-line answer may hold inline numbered steps ("1. do this 2. do that"). Split only
+    // when there are at least two step markers that start a word, so a code such as "E-12)"
+    // or a value such as "page 9." in the middle of a sentence is never cut in half.
+    const markers = text.match(/(?:^|\s)\d+[\.\)]\s/g) || [];
+    if (markers.length >= 2) {
+      const bySteps = text.split(/\s+(?=\d+[\.\)]\s)/).map((l) => l.trim()).filter((l) => l);
+      if (bySteps.length > 1) lines = bySteps;
+    }
   }
 
   const stepPattern = /^\d+[\.\)]\s+/;

@@ -1,5 +1,5 @@
 {
-  "measured_at": "2026-10-12 13:40:02",
+  "measured_at": "2026-10-26 14:33:00",
   "A3": {
     "hits": 86,
     "total": 88,
@@ -36,8 +36,8 @@
     ]
   },
   "A14_A15": {
-    "a14_shown": 13,
-    "a15_pointer": 14,
+    "a14_shown": 14,
+    "a15_pointer": 15,
     "total": 15,
     "rows": [
       {
@@ -56,7 +56,7 @@
         "picture_correct": true,
         "pointer": true,
         "picture": [
-          "6.pdf (page 62)"
+          "reduced vol.pdf (page 9)"
         ],
         "expected": [
           "reduced vol.pdf (page 9)",
@@ -115,11 +115,14 @@
       },
       {
         "id": 67,
-        "picture_correct": false,
-        "pointer": false,
-        "picture": [],
+        "picture_correct": true,
+        "pointer": true,
+        "picture": [
+          "8.pdf (page 9)"
+        ],
         "expected": [
           "8.pdf (page 8)",
+          "8.pdf (page 9)",
           "8.pdf (page 23)"
         ]
       },
@@ -176,7 +179,7 @@
         "picture_correct": true,
         "pointer": true,
         "picture": [
-          "13.pdf (page 2)"
+          "13.pdf (page 1)"
         ],
         "expected": [
           "13.pdf (page 2)",
@@ -189,7 +192,7 @@
         "picture_correct": false,
         "pointer": true,
         "picture": [
-          "6.pdf (page 29)"
+          "7.pdf (page 28)"
         ],
         "expected": [
           "hoist.pdf (page 2)"
@@ -200,7 +203,7 @@
         "picture_correct": true,
         "pointer": true,
         "picture": [
-          "7.pdf (page 4)"
+          "reduced vol.pdf (page 9)"
         ],
         "expected": [
           "reduced vol.pdf (page 9)",

@@ -1,0 +1,72 @@
+[
+  {
+    "id": 122,
+    "category": "Table",
+    "question": "フォルトコードE-14は何を意味し、どう対処すればよいですか？",
+    "expected_answer": "E-14はパラメータメモリエラー(PrE)です。原因はEEPROMの書き込み失敗、または書き込み中の停電によるファームウェア破損です。工場出荷時のパラメータリセットを行い、パラメータを再設定します。それでも解消しない場合は制御基板を交換します。重大度はWarningです。",
+    "expected_source": "VFD3000_Fault_Alarm_Codes.xlsx"
+  },
+  {
+    "id": 123,
+    "category": "Table",
+    "question": "E-13の外部フォルト入力の原因は何で、何を確認すべきですか？",
+    "expected_answer": "接続された安全装置から外部トリップ信号を受信したことが原因です。外部フォルト端子に配線されている外部インターロック、非常停止スイッチ、または安全リレーの状態を確認します。",
+    "expected_source": "VFD3000_Fault_Alarm_Codes.xlsx"
+  },
+  {
+    "id": 124,
+    "category": "Table",
+    "question": "重大度がWarningに分類されるフォルトコードはどれですか？",
+    "expected_answer": "E-06、E-08、E-12、E-13、E-14、E-16です。",
+    "expected_source": "VFD3000_Fault_Alarm_Codes.xlsx"
+  },
+  {
+    "id": 125,
+    "category": "Table",
+    "question": "フォルトをリセットしてから10分以内に再発した場合はどうすればよいですか？",
+    "expected_answer": "運転を続ける前に、資格を持つサービス担当者に連絡します(フォルトコード表の注記3)。",
+    "expected_source": "VFD3000_Fault_Alarm_Codes.xlsx"
+  },
+  {
+    "id": 126,
+    "category": "General",
+    "question": "XP-400のテスト運転時に表示される初期設定の圧力、保持時間、解除時間はいくつですか？",
+    "expected_answer": "圧力は20トン、保持時間(DWELL)は0:30分(30秒)、解除時間(RELEASE)は0:30分(30秒)です。",
+    "expected_source": "8.pdf (page 15)"
+  },
+  {
+    "id": 127,
+    "category": "Table",
+    "question": "55HPモーターの場合、改造番号2の価格はいくらですか？",
+    "expected_answer": "400ドルです(改造番号2は主回路および制御回路のナイフスイッチを遮断器に置き換えるもので、どのHP定格でも400ドルです)。",
+    "expected_source": "7.pdf (page 20)"
+  },
+  {
+    "id": 128,
+    "category": "Not Found",
+    "question": "E-07の冷却ファンのベアリングにはどのグリースを使用すべきですか？",
+    "expected_answer": "Correctly states the context does not give a grease recommendation (in Japanese).",
+    "expected_source": "N/A"
+  },
+  {
+    "id": 129,
+    "category": "Edge Case",
+    "question": "e-03とは？",
+    "expected_answer": "E-03は定速運転中の過電流(OC)です。原因は急な負荷増加、機械的な詰まり、モーターのストールです。駆動機器に機械的な拘束や詰まりがないか確認し、負荷がモーター定格を超えていないか確認します。重大度はCriticalです。",
+    "expected_source": "VFD3000_Fault_Alarm_Codes.xlsx"
+  },
+  {
+    "id": 130,
+    "category": "Edge Case",
+    "question": "E-１０はどういう意味ですか？",
+    "expected_answer": "E-10は入力欠相(PF)です。入力相の欠落または不平衡、あるいは入力ヒューズの断線が原因です。",
+    "expected_source": "VFD3000_Fault_Alarm_Codes.xlsx"
+  },
+  {
+    "id": 131,
+    "category": "Table",
+    "question": "E-05エラーが出た場合の対処方法は何ですか？",
+    "expected_answer": "E-05は減速中の過電圧(OV)です。減速時間(DECパラメータ)を長くし、ブレーキ抵抗の容量を追加または確認します。重大度はCriticalです。",
+    "expected_source": "VFD3000_Fault_Alarm_Codes.xlsx"
+  }
+]

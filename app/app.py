@@ -15,6 +15,7 @@ from flask import Flask, request, jsonify, send_from_directory, render_template
 import search
 import retrieval
 import config
+import answer_formatter as fmt
 
 app = Flask(__name__)
 
@@ -31,6 +32,35 @@ logger = logging.getLogger("app")
 MAX_IMAGES_PER_ANSWER = 1
 
 _MD_IMAGE_PATTERN = re.compile(r"!\[[^\]]*\]\(file:///[^)]+\)")
+
+# A short friendly lead-in, like a chat assistant ("Here's what I found..."). It is added
+# here, in the web layer only, so the stored/tested answer text is not changed. The same
+# question always gets the same line (no randomness). Not added to "not found" answers
+# or to clarification questions.
+_INTROS_EN = [
+    "Here's what I found in the documents:",
+    "Sure! Here's your answer:",
+    "Happy to help. Here's what the manuals say:",
+    "Here is the answer, based on the documents:",
+]
+_INTROS_JA = [
+    "資料を確認しました。回答は次のとおりです。",
+    "ご質問ありがとうございます。こちらが回答です。",
+    "お調べした内容をお伝えします。",
+]
+
+
+def _add_intro(answer_text, question, lang, sources):
+    text = (answer_text or "").strip()
+    if not text:
+        return text
+    if not sources or sources == ["No specific source cited"]:
+        return text
+    if text.endswith(("?", "\uff1f")) or fmt._DECLINE_START.match(text):
+        return text
+    intros = _INTROS_JA if lang == "Japanese" else _INTROS_EN
+    intro = intros[sum(ord(c) for c in question) % len(intros)]
+    return intro + "\n\n" + text
 
 
 @app.route("/")
@@ -71,6 +101,8 @@ def ask():
 
     answer_text = _MD_IMAGE_PATTERN.sub("", result["answer"]).strip()
     answer_text = re.sub(r"\n{3,}", "\n\n", answer_text).strip()
+    answer_text = _add_intro(answer_text, question,
+                             result.get("detected_language", "English"), result["sources"])
 
     return jsonify({
         "answer": answer_text,

@@ -160,19 +160,41 @@ def _keyword_boost_chunks(query, max_extra=MAX_KEYWORD_CHUNKS):
     extra_docs, extra_metas = [], []
     for token in _extract_code_candidates(query):
         try:
+            # fetch more than max_extra: some hits only contain the token inside a longer
+            # string and are dropped by the boundary check below, which used to crowd out
+            # the real match (e.g. the E-10 row of the fault table).
             hits = _collection.get(
                 where_document={"$contains": token},
-                limit=max_extra
+                limit=max(max_extra * 15, 30)
             )
         except Exception as e:
             print(f"[retrieval] keyword-boost lookup failed for token '{token}': {e}")
             continue
         boundary_re = re.compile(r"(?<![A-Za-z0-9])" + re.escape(token) + r"(?![A-Za-z0-9])", re.IGNORECASE)
+        taken = 0
         for doc, meta in zip(hits.get("documents", []), hits.get("metadatas", [])):
+            if taken >= max_extra:
+                break
             if boundary_re.search(doc):
                 extra_docs.append(doc)
                 extra_metas.append(meta)
+                taken += 1
     return extra_docs, extra_metas
+
+
+def get_severity_chunks(limit=300):
+    """Table chunks that contain a Critical / Warning / Info level (the fault code tables)."""
+    _require_init()
+    try:
+        hit = _collection.get(
+            where={"chunk_type": "table"},
+            where_document={"$or": [{"$contains": "Critical"}, {"$contains": "Warning"}, {"$contains": "Info"}]},
+            limit=limit,
+        )
+    except Exception as e:
+        print(f"[retrieval] severity table lookup failed: {e}")
+        return [], []
+    return hit.get("documents", []), hit.get("metadatas", [])
 
 
 # --- Picture-intent boost ----------------------------------------------------

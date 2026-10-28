@@ -62,6 +62,47 @@ def generate_answer(query, n_results=None):
     # Fix letter-O / full-width typos in fault codes (E-O1 -> E-01) so both the search
     # and the LLM see the code exactly as it is written in the documents.
     query = retrieval.normalize_query(query)
+    # "What is the severity of the fault code?" - no code given: ask which one, no model call.
+    if fmt.needs_code_clarification(query):
+        lang = fmt.detect_language(query)
+        return {
+            "answer": fmt.build_code_clarification_answer(lang),
+            "sources": ["No specific source cited"],
+            "detected_language": lang,
+            "all_retrieved_sources": [],
+            "images": [],
+            "timings": {
+                "retrieval_s": 0.0, "llm_s": 0.0,
+                "total_s": time.perf_counter() - t_start,
+                "load_s": 0, "prompt_tokens": 0, "prompt_s": 0,
+                "output_tokens": 0, "output_s": 0,
+            }
+        }
+
+    # "Which fault codes are Critical?" / "Severity of E-12?" - read straight from the fault
+    # table rows instead of letting the model list them (it drops or swaps codes).
+    sev_q = fmt.parse_severity_question(query)
+    if sev_q:
+        sdocs, smetas = retrieval.get_severity_chunks()
+        built = fmt.build_severity_index(sdocs, [retrieval.format_source(m) for m in smetas])
+        if built:
+            lang = fmt.detect_language(query)
+            hit = fmt.answer_severity(sev_q, built[0], built[1], lang)
+            if hit:
+                return {
+                    "answer": hit[0],
+                    "sources": hit[1] if hit[1] else ["No specific source cited"],
+                    "detected_language": lang,
+                    "all_retrieved_sources": hit[1],
+                    "images": [],
+                    "timings": {
+                        "retrieval_s": time.perf_counter() - t_start, "llm_s": 0.0,
+                        "total_s": time.perf_counter() - t_start,
+                        "load_s": 0, "prompt_tokens": 0, "prompt_s": 0,
+                        "output_tokens": 0, "output_s": 0,
+                    }
+                }
+
     results = retrieval.search_chunks(query, n_results=n_results)
 
     docs = results['documents'][0]
@@ -97,9 +138,24 @@ def generate_answer(query, n_results=None):
 
     prompt = llm_client.build_prompt(query, context, detected_lang)
     raw_answer, llm_stats = llm_client.call_llm(prompt)
+    # The answer must be in the question's language. The 7B model sometimes answers a Japanese
+    # question in English, slips Chinese into a Japanese answer, or puts Japanese into an English
+    # one. When that happens, ask once more with a stricter instruction and keep the better answer.
+    if fmt.language_problems(detected_lang, raw_answer):
+        retry_answer, retry_stats = llm_client.call_llm(
+            llm_client.build_prompt(query, context, detected_lang, strict=True))
+        if fmt.language_problems(detected_lang, retry_answer) < fmt.language_problems(detected_lang, raw_answer):
+            raw_answer = retry_answer
+        for k, v in retry_stats.items():
+            llm_stats[k] = llm_stats.get(k, 0) + v
     t_answered = time.perf_counter()
 
     used_ids, answer_clean = fmt.parse_used_sources(raw_answer)
+    if detected_lang == "Japanese":
+        if not fmt.looks_japanese(answer_clean) and fmt.is_decline(answer_clean):
+            answer_clean = fmt.standard_decline("Japanese")      # declined in English: say it in Japanese
+        elif fmt.has_chinese_text(answer_clean):
+            answer_clean = fmt.cut_at_chinese(answer_clean)      # last resort: fix / drop the Chinese part
 
     if used_ids:
         used_sources = list(dict.fromkeys(
@@ -108,7 +164,11 @@ def generate_answer(query, n_results=None):
     else:
         used_sources = []
 
-    picture_sources, attached_images = fmt.collect_picture_data(used_ids, metas)
+    # Picture question + the model cited text but no picture: also show the picture on the
+    # same page as the text it used (not for "not found" answers).
+    picture_sources, attached_images = fmt.collect_picture_data(
+        used_ids, metas,
+        same_page_fallback=retrieval._wants_picture(query) and not fmt.is_decline(answer_clean))
 
     if picture_sources:
         pointer_str = fmt.format_picture_pointers(picture_sources, detected_lang)
