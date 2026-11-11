@@ -239,6 +239,15 @@ _KEYWORD_UNITS = {
 _QUERY_QUANTITY = re.compile(r"\d+\.?\d*\s*(hp|kw|volts?|v|amps?|a|lbs?|kg|mm|inch(?:es)?|pole)\b", re.IGNORECASE)
 
 
+# A question that asks for the values "per pole count", "based on ...", "for all ..." wants the
+# whole table (or a comparison across it), so it is NOT underspecified - answer it, don't ask.
+_BREAKDOWN_RE = re.compile(
+    r"(?<![A-Za-z])(?:based\s+on|depending\s+on|according\s+to|for\s+each|for\s+all|across|"
+    r"each|per|all\s+(?:four|three|two|five|six|of\s+the)|same|different|compare|comparison|difference)(?![A-Za-z])"
+    r"|\u3054\u3068|\u306b\u3088\u3063\u3066|\u306b\u5fdc\u3058|\u3059\u3079\u3066|\u6bd4\u8f03|\u540c\u3058|\u9055\u3044",   # ごと によって に応じ すべて 比較 同じ 違い
+    re.IGNORECASE)
+
+
 def detect_conflicting_values(query, docs):
     """
     Code-level (non-LLM) check: does the query ask about a quantity, and do
@@ -256,6 +265,8 @@ def detect_conflicting_values(query, docs):
     if not kws:
         return None
     if _QUERY_QUANTITY.search(query):
+        return None
+    if _BREAKDOWN_RE.search(query):
         return None
 
     wanted = set()

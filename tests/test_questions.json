@@ -437,15 +437,15 @@
     "id": 64,
     "category": "Table",
     "question": "Which modification has the same price for all four HP ratings?",
-    "expected_answer": "\"Substitute Circuit Breakers for Main Line and Control Circuit Knife Switches\" (modification 2), which costs $400 for all ratings.",
+    "expected_answer": "Several modifications cost the same for all four HP ratings: modification 2 (Substitute Circuit Breakers for Main Line and Control Circuit Knife Switches) at $400; modifications 12A, 12B and 12C (Shunt Brake Relay) at $368; modification 17 (Arc Inhibitors) and modification 18 (Cabinet Space Heater) at $440.",
     "expected_source": "7.pdf (page 20)"
   },
   {
     "id": 65,
     "category": "Table",
     "question": "For a 55 HP motor, compare the costs of Modification 3 and Modification 25. Which is more expensive and by how much?",
-    "expected_answer": "Modification 25 (Shunt Brake Relay) costs $368, while Modification 3 (Additional Acceleration Point) has different costs based on the HP rating: $776 for 55 HP. Therefore, Modification 3 is more expensive than Modification 25 by $408.",
-    "expected_source": " 7.pdf (page 20)"
+    "expected_answer": "For a 55 HP motor, Modification 3 (Additional Acceleration Point) costs $912 and Modification 25 (Negative Line Contactor) costs $604, so Modification 3 is more expensive by $308.",
+    "expected_source": "7.pdf (page 20)"
   },
   {
     "id": 66,
